@@ -37,4 +37,27 @@ unit budget). This project is a compact, reproducible demonstration of that idea
 - **Visualization**: `src/export_vtk.py` rolls out the policy and writes VTK
   ImageData files for ParaView.
 
+
+## Results
+
+The learned PPO policy modestly but consistently beats random refinement. On a
+20-episode evaluation with a refinement budget of 40 cells:
+
+| Policy   | Final interpolation error |
+|----------|---------------------------|
+| Learned  | 8.498                     |
+| Random   | 8.774                     |
+
+That's roughly a 3% reduction in interpolation error versus random refinement
+for the same budget — the agent learns to preferentially refine near the
+high-gradient regions of the field.
+
+![Refined cells](refined_cells.png)
+
+*Cells the agent chose to refine (warm colors) overlaid on the scalar field.*
+
+![Evaluation results](results.png)
+
+*Evaluation output: the learned policy achieves lower final error than random.*
+
 ## Project structure

@@ -107,17 +107,21 @@ class AMREnv(gym.Env):
         err_before = self._interp_error().sum()
 
         # Apply refinement, respecting both the per-step cap and the overall
-        # remaining budget. When the agent requests more than allowed, keep the
-        # highest-gradient requested cells.
+        # remaining budget. When the agent requests more cells than allowed, we
+        # keep a RANDOM subset of the requested cells -- NOT the highest-gradient
+        # ones. This is important: if we kept the best cells, the environment
+        # would be doing the agent's job for it (and a random policy that
+        # requests many cells would get the good ones for free). Forcing the
+        # agent to point precisely at the cells worth refining is the whole
+        # learning problem.
         remaining = self.refine_budget - self.refined.sum()
         allowed = int(min(self.per_step_cap, max(remaining, 0)))
         new_cells = action & (~self.refined)
         if new_cells.sum() > allowed:
-            err_now = self._interp_error()
-            idx = np.argsort(err_now[new_cells])[::-1]
-            coords = np.argwhere(new_cells)[idx][:allowed]
+            coords = np.argwhere(new_cells)
+            pick = self._rng.choice(len(coords), size=allowed, replace=False)
             mask = np.zeros_like(new_cells)
-            for r, c in coords:
+            for r, c in coords[pick]:
                 mask[r, c] = True
             new_cells = mask
         self.refined |= new_cells

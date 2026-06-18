@@ -1,1 +1,9 @@
-
+__pycache__/
+*.py[cod]
+venv/
+models/
+logs/
+paraview_output/
+paraview_output_random/
+*.vti
+.DS_Store
